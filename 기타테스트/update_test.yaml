@@ -1,12 +1,12 @@
 apiVersion: networking.istio.io/v1alpha3
 kind: EnvoyFilter
 metadata:
-  name: {filterApp}-filter
-  namespace: {filterNamespace}
+  name: {component}-filter
+  namespace: {namespace}
 spec:
   workloadSelector:
     labels:
-      app: {filterApp}
+      app: {component}
   configPatches:
   - applyTo: HTTP_FILTER
     match:
@@ -45,7 +45,7 @@ spec:
               request_handle:logWarn("Source: " .. (source or "nil") .. ", Destination: " .. (destination or "nil"))
 
               -- 실제 목적지를 결정하는 함수 호출
-              destination_ip = update_destination_ip(destination_ip)
+              destination_ip = traffic_allocation(destination_ip)
               request_handle:logWarn("Source: " .. (source or "nil") .. ", Seleted Destination: " .. (destination or "nil"))
 
               -- 결정된 목적지로 header 업데이트하여 pathThrough 방식으로 DNS거치지 않고 바로 되게 됨.

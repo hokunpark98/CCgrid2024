@@ -1,4 +1,4 @@
-package trafficMonitor
+package metricCollector
 
 import (
 	"fmt"
