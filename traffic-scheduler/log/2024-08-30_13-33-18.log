@@ -1,0 +1,91 @@
+Log start time: 2024-08-30 13:33:18
+---------------------------------------------
+
+
+Component Graph:
+  Components:
+    - service-a
+    - service-b
+    - service-c
+    - service-d
+    - service-e
+  Links:
+    - [service-b -> service-c]
+    - [service-a -> service-b]
+    - [service-c -> service-d]
+    - [service-d -> service-e]
+
+Component to Pod Map:
+  service-a: [service-a-deployment-696cb64c9-l7gww, service-a-deployment-696cb64c9-dphwm, service-a-deployment-696cb64c9-x4k74]
+  service-b: [service-b-deployment-5b99db849d-pbfp4, service-b-deployment-5b99db849d-rhn7b, service-b-deployment-5b99db849d-dplqk, service-b-deployment-5b99db849d-bbmn8]
+  service-c: [service-c-deployment-57cd84fbfc-ljphp, service-c-deployment-57cd84fbfc-s7vgf]
+  service-d: [service-d-deployment-79b86d59bd-mzrtm, service-d-deployment-79b86d59bd-n5lfg, service-d-deployment-79b86d59bd-m5cdp, service-d-deployment-79b86d59bd-52mwz, service-d-deployment-79b86d59bd-sk5bn]
+  service-e: [service-e-deployment-5b7f57b8c-8vxkx, service-e-deployment-5b7f57b8c-82qgv, service-e-deployment-5b7f57b8c-2mwtk, service-e-deployment-5b7f57b8c-fdvxf]
+
+Request Count Per Pod:
+  Component: service-c
+    Pod: service-c-deployment-57cd84fbfc-ljphp, Request Count: 1183
+    Pod: service-c-deployment-57cd84fbfc-s7vgf, Request Count: 1181
+  Component: service-b
+    Pod: service-b-deployment-5b99db849d-pbfp4, Request Count: 588
+    Pod: service-b-deployment-5b99db849d-rhn7b, Request Count: 569
+    Pod: service-b-deployment-5b99db849d-dplqk, Request Count: 574
+    Pod: service-b-deployment-5b99db849d-bbmn8, Request Count: 633
+  Component: service-d
+    Pod: service-d-deployment-79b86d59bd-mzrtm, Request Count: 516
+    Pod: service-d-deployment-79b86d59bd-n5lfg, Request Count: 454
+    Pod: service-d-deployment-79b86d59bd-m5cdp, Request Count: 469
+    Pod: service-d-deployment-79b86d59bd-52mwz, Request Count: 493
+    Pod: service-d-deployment-79b86d59bd-sk5bn, Request Count: 432
+  Component: service-e
+    Pod: service-e-deployment-5b7f57b8c-8vxkx, Request Count: 602
+    Pod: service-e-deployment-5b7f57b8c-82qgv, Request Count: 590
+    Pod: service-e-deployment-5b7f57b8c-2mwtk, Request Count: 603
+    Pod: service-e-deployment-5b7f57b8c-fdvxf, Request Count: 568
+
+Request Duration Per Pod:
+  Component: service-c
+    Pod: service-c-deployment-57cd84fbfc-ljphp, Request Duration: 13 ms
+    Pod: service-c-deployment-57cd84fbfc-s7vgf, Request Duration: 20 ms
+  Component: service-b
+    Pod: service-b-deployment-5b99db849d-pbfp4, Request Duration: 24 ms
+    Pod: service-b-deployment-5b99db849d-rhn7b, Request Duration: 24 ms
+    Pod: service-b-deployment-5b99db849d-dplqk, Request Duration: 25 ms
+    Pod: service-b-deployment-5b99db849d-bbmn8, Request Duration: 27 ms
+  Component: service-d
+    Pod: service-d-deployment-79b86d59bd-mzrtm, Request Duration: 10 ms
+    Pod: service-d-deployment-79b86d59bd-n5lfg, Request Duration: 9 ms
+    Pod: service-d-deployment-79b86d59bd-m5cdp, Request Duration: 5 ms
+    Pod: service-d-deployment-79b86d59bd-52mwz, Request Duration: 12 ms
+    Pod: service-d-deployment-79b86d59bd-sk5bn, Request Duration: 9 ms
+  Component: service-e
+    Pod: service-e-deployment-5b7f57b8c-8vxkx, Request Duration: 0 ms
+    Pod: service-e-deployment-5b7f57b8c-82qgv, Request Duration: 2 ms
+    Pod: service-e-deployment-5b7f57b8c-2mwtk, Request Duration: 1 ms
+    Pod: service-e-deployment-5b7f57b8c-fdvxf, Request Duration: 2 ms
+
+CPU Utilization Per Pod:
+  Component: service-a
+    Pod: service-a-deployment-696cb64c9-l7gww, CPU Utilization: 0.5%
+    Pod: service-a-deployment-696cb64c9-dphwm, CPU Utilization: 0.2%
+    Pod: service-a-deployment-696cb64c9-x4k74, CPU Utilization: 0.4%
+  Component: service-b
+    Pod: service-b-deployment-5b99db849d-pbfp4, CPU Utilization: 0.6%
+    Pod: service-b-deployment-5b99db849d-rhn7b, CPU Utilization: 0.5%
+    Pod: service-b-deployment-5b99db849d-dplqk, CPU Utilization: 0.6%
+    Pod: service-b-deployment-5b99db849d-bbmn8, CPU Utilization: 0.8%
+  Component: service-c
+    Pod: service-c-deployment-57cd84fbfc-ljphp, CPU Utilization: 0.3%
+    Pod: service-c-deployment-57cd84fbfc-s7vgf, CPU Utilization: 1.2%
+  Component: service-d
+    Pod: service-d-deployment-79b86d59bd-mzrtm, CPU Utilization: 0.5%
+    Pod: service-d-deployment-79b86d59bd-n5lfg, CPU Utilization: 0.4%
+    Pod: service-d-deployment-79b86d59bd-m5cdp, CPU Utilization: 0.2%
+    Pod: service-d-deployment-79b86d59bd-52mwz, CPU Utilization: 0.6%
+    Pod: service-d-deployment-79b86d59bd-sk5bn, CPU Utilization: 0.5%
+  Component: service-e
+    Pod: service-e-deployment-5b7f57b8c-8vxkx, CPU Utilization: 0.1%
+    Pod: service-e-deployment-5b7f57b8c-82qgv, CPU Utilization: 0.3%
+    Pod: service-e-deployment-5b7f57b8c-2mwtk, CPU Utilization: 0.2%
+    Pod: service-e-deployment-5b7f57b8c-fdvxf, CPU Utilization: 0.3%
+
