@@ -4,180 +4,171 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"traffic-scheduler/graphGenerator"
+	"traffic-scheduler/logging"
+	"traffic-scheduler/metricCollector"
 	"traffic-scheduler/prometheusClient"
 )
 
 // handleGetGraph는 /get-graph 요청을 처리하고 컴포넌트 그래프를 생성하여 응답
 func handleGetGraph(w http.ResponseWriter, r *http.Request, promClient *prometheusClient.PrometheusClient) {
-	logFile := generateLogFile()
-	defer logFile.Close()
-
 	namespace := r.URL.Query().Get("namespace")
 
 	if namespace == "" {
-		http.Error(w, "namespace parameter is required", http.StatusBadRequest)
-		logFile.WriteString("Missing parameter: namespace\n")
-		log.Print("Missing parameter: namespace")
+		logging.Alert(w, "fail\n")
 		return
 	}
 
-	componentGraph, err := generateComponentGraph(promClient, namespace, logFile)
+	logFile := logging.GenerateLogFile()
+	defer logFile.Close()
+
+	componentGraph, err := graphGenerator.GenerateGraph(promClient, namespace)
 	if err != nil {
 		logFile.WriteString(fmt.Sprintf("Failed to generate graph: %v\n", err))
 		log.Print(fmt.Sprintf("Failed to generate graph: %v", err))
-		http.Error(w, "Failed to generate graph", http.StatusInternalServerError)
 		return
 	}
-
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(fmt.Sprintf("Graph generated successfully for namespace: %s\n", namespace)))
+	logging.LogComponentGraph(componentGraph, logFile)
 
 	fmt.Printf("Component Graph: %+v\n", componentGraph)
 }
 
 // handleGetMonitoringInfo는 /get-monitoring-info 요청을 처리하여 컴포넌트 그래프를 생성하고 모니터링 정보를 반환
 func handleGetMonitoringInfo(w http.ResponseWriter, r *http.Request, promClient *prometheusClient.PrometheusClient) {
-	logFile := generateLogFile()
-	defer logFile.Close()
-
 	namespace := r.URL.Query().Get("namespace")
 	duration := r.URL.Query().Get("duration")
 
 	if namespace == "" || duration == "" {
-		http.Error(w, "namespace and duration parameters are required", http.StatusBadRequest)
-		logFile.WriteString("Missing parameters: namespace or duration\n")
-		log.Print("Missing parameters: namespace or duration")
+		logging.Alert(w, "fail\n")
 		return
 	}
 
-	componentGraph, err := generateComponentGraph(promClient, namespace, logFile)
+	logFile := logging.GenerateLogFile()
+	defer logFile.Close()
 
+	componentGraph, err := graphGenerator.GenerateGraph(promClient, namespace)
 	if err != nil {
-		logFile.WriteString(fmt.Sprintf("Failed to generate graph: %v\n", err))
-		log.Print(fmt.Sprintf("Failed to generate graph: %v", err))
-		http.Error(w, "Failed to generate graph", http.StatusInternalServerError)
+		logMessage := fmt.Sprintf("Failed to generate graph: %v\n", err)
+		logging.LogMessage(logFile, logMessage)
+		logging.Alert(w, "fail\n")
 		return
 	}
+	logging.LogComponentGraph(componentGraph, logFile)
 
-	componentPodMap := generateComponentPodMap(promClient, componentGraph, logFile)
+	componentPodMap, err := metricCollector.MapComponentToPodInfo(promClient, namespace)
+	if err != nil {
+		logFile.WriteString(fmt.Sprintf("Failed to generate component pod map: %v\n", err))
+		log.Print(fmt.Sprintf("Failed to generate component pod map: %v", err))
+		return
+	}
+	logging.LogComponentPodMap(componentPodMap, logFile)
 
-	requestCountData, err := getRequestCountPerPod(promClient, namespace, componentGraph, componentPodMap, duration, logFile)
+	requestCountMap, err := metricCollector.CollectRequestCountPerPod(promClient, namespace, componentGraph, componentPodMap, duration)
 	if err != nil {
 		logFile.WriteString(fmt.Sprintf("Error collecting request count data: %v\n", err))
-		log.Print(fmt.Sprintf("Error collecting request count data: %v", err))
-		http.Error(w, "Error collecting request count data", http.StatusInternalServerError)
+		log.Print(fmt.Sprintf("Error collecting request count data: %v\n", err))
 		return
 	}
+	logging.LogRequestCountPerPod(requestCountMap, logFile)
 
-	_, err = getRequestDurationData(promClient, namespace, componentGraph, componentPodMap, duration, requestCountData, logFile)
+	requestDurationMap, err := metricCollector.CollectRequestDurationPerPod(promClient, namespace, componentGraph, componentPodMap, duration, requestCountMap)
 	if err != nil {
 		logFile.WriteString(fmt.Sprintf("Error collecting request duration data: %v\n", err))
 		log.Print(fmt.Sprintf("Error collecting request duration data: %v", err))
-		http.Error(w, "Error collecting request duration data", http.StatusInternalServerError)
 		return
 	}
+	logging.LogRequestDurationData(requestDurationMap, logFile)
 
-	_, err = getCpuUtilizationPerPod(promClient, namespace, componentGraph, componentPodMap, duration, logFile)
+	nodeCPUFrequencyMap, err := metricCollector.CollectNodeCPUFrequency(promClient)
 	if err != nil {
 		logFile.WriteString(fmt.Sprintf("Error collecting CPU utilization data: %v\n", err))
 		log.Print(fmt.Sprintf("Error collecting CPU utilization data: %v", err))
-		http.Error(w, "Error collecting CPU utilization data", http.StatusInternalServerError)
 		return
 	}
-
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Monitoring information collected successfully\n"))
+	logging.LogNodeCpuFrequencies(nodeCPUFrequencyMap, logFile)
 }
 
 // handleGetNodeCpuHz는 /get-node-cpu-hz 요청을 처리하고 각 노드의 CPU 주파수를 응답합니다.
 func handleGetNodeCpuHz(w http.ResponseWriter, promClient *prometheusClient.PrometheusClient) {
-	logFile := generateLogFile()
+	logFile := logging.GenerateLogFile()
 	defer logFile.Close()
 
-	_, err := getNodeCpuFrequencies(promClient, logFile)
+	nodeCPUFrequencyMap, err := metricCollector.CollectNodeCPUFrequency(promClient)
 	if err != nil {
-		logFile.WriteString(fmt.Sprintf("Error collecting node CPU frequencies: %v\n", err))
-		http.Error(w, "Error collecting node CPU frequencies", http.StatusInternalServerError)
+		logFile.WriteString(fmt.Sprintf("Error collecting CPU utilization data: %v\n", err))
+		log.Print(fmt.Sprintf("Error collecting CPU utilization data: %v", err))
 		return
 	}
+	logging.LogNodeCpuFrequencies(nodeCPUFrequencyMap, logFile)
 
 	log.Printf("Node CPU frequencies successfully collected and sent.")
 }
 
 func handleTrafficSchedule(w http.ResponseWriter, r *http.Request, promClient *prometheusClient.PrometheusClient) {
-	logFile := generateLogFile()
-	defer logFile.Close()
-
 	namespace := r.URL.Query().Get("namespace")
 	duration := r.URL.Query().Get("duration")
 
 	if namespace == "" || duration == "" {
-		http.Error(w, "namespace and duration parameters are required", http.StatusBadRequest)
-		logFile.WriteString("Missing parameters: namespace or duration\n")
-		log.Print("Missing parameters: namespace or duration")
+		logging.Alert(w, "fail\n")
 		return
 	}
 
-	componentGraph, err := generateComponentGraph(promClient, namespace, logFile)
+	logFile := logging.GenerateLogFile()
+	defer logFile.Close()
+
+	componentGraph, err := graphGenerator.GenerateGraph(promClient, namespace)
 	if err != nil {
-		logFile.WriteString(fmt.Sprintf("Failed to generate graph: %v\n", err))
-		log.Print(fmt.Sprintf("Failed to generate graph: %v", err))
-		http.Error(w, "Failed to generate graph", http.StatusInternalServerError)
+		logMessage := fmt.Sprintf("Failed to generate graph: %v\n", err)
+		logging.LogMessage(logFile, logMessage)
+		logging.Alert(w, "fail\n")
 		return
 	}
+	logging.LogComponentGraph(componentGraph, logFile)
 
-	componentPodMap := generateComponentPodMap(promClient, componentGraph, logFile)
-
-	podInfoMap, err := getMapPodsToIP(promClient, namespace, logFile)
+	componentPodMap, err := metricCollector.MapComponentToPodInfo(promClient, namespace)
 	if err != nil {
-		logFile.WriteString(fmt.Sprintf("Error collecting pod to IP map: %v\n", err))
-		log.Print(fmt.Sprintf("Error collecting pod to IP map: %v", err))
-		http.Error(w, "Error collecting pod to IP map", http.StatusInternalServerError)
+		logFile.WriteString(fmt.Sprintf("Failed to generate component pod map: %v\n", err))
+		log.Print(fmt.Sprintf("Failed to generate component pod map: %v", err))
 		return
 	}
+	logging.LogComponentPodMap(componentPodMap, logFile)
 
-	requestCountData, err := getRequestCountPerPod(promClient, namespace, componentGraph, componentPodMap, duration, logFile)
+	requestCountMap, err := metricCollector.CollectRequestCountPerPod(promClient, namespace, componentGraph, componentPodMap, duration)
 	if err != nil {
 		logFile.WriteString(fmt.Sprintf("Error collecting request count data: %v\n", err))
-		log.Print(fmt.Sprintf("Error collecting request count data: %v", err))
-		http.Error(w, "Error collecting request count data", http.StatusInternalServerError)
+		log.Print(fmt.Sprintf("Error collecting request count data: %v\n", err))
 		return
 	}
+	logging.LogRequestCountPerPod(requestCountMap, logFile)
 
-	requestDurationData, err := getRequestDurationData(promClient, namespace, componentGraph, componentPodMap, duration, requestCountData, logFile)
+	requestDurationMap, err := metricCollector.CollectRequestDurationPerPod(promClient, namespace, componentGraph, componentPodMap, duration, requestCountMap)
 	if err != nil {
 		logFile.WriteString(fmt.Sprintf("Error collecting request duration data: %v\n", err))
 		log.Print(fmt.Sprintf("Error collecting request duration data: %v", err))
-		http.Error(w, "Error collecting request duration data", http.StatusInternalServerError)
 		return
 	}
+	logging.LogRequestDurationData(requestDurationMap, logFile)
 
-	cpuUtilizationData, err := getCpuUtilizationPerPod(promClient, namespace, componentGraph, componentPodMap, duration, logFile)
+	cpuUtilizationMap, err := metricCollector.CollectCpuUtilizationPerPod(promClient, namespace, componentPodMap, duration)
 	if err != nil {
 		logFile.WriteString(fmt.Sprintf("Error collecting CPU utilization data: %v\n", err))
 		log.Print(fmt.Sprintf("Error collecting CPU utilization data: %v", err))
-		http.Error(w, "Error collecting CPU utilization data", http.StatusInternalServerError)
 		return
 	}
+	logging.LogCpuUtilizationPerPod(cpuUtilizationMap, logFile)
 
-	nodeFrequencies, err := getNodeCpuFrequencies(promClient, logFile)
+	nodeCPUFrequencyMap, err := metricCollector.CollectNodeCPUFrequency(promClient)
 	if err != nil {
-		logFile.WriteString(fmt.Sprintf("Error collecting node CPU frequencies: %v\n", err))
-		log.Print(fmt.Sprintf("Error collecting node CPU frequencies: %v", err))
-		http.Error(w, "Error collecting node CPU frequencies", http.StatusInternalServerError)
+		logFile.WriteString(fmt.Sprintf("Error collecting CPU utilization data: %v\n", err))
+		log.Print(fmt.Sprintf("Error collecting CPU utilization data: %v", err))
 		return
 	}
-
-	//exeTrafficAllocator(componentGraph, )
-
-	// 응답 작성
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Traffic scheduling completed successfully\n"))
+	logging.LogNodeCpuFrequencies(nodeCPUFrequencyMap, logFile)
 
 	// 결과를 콘솔에 출력
 	fmt.Printf("Pod Info Data: %+v\n", componentGraph)
-	fmt.Printf("Request Duration Data: %+v\n", requestDurationData)
-	fmt.Printf("CPU Utilization Data: %+v\n", cpuUtilizationData)
-	fmt.Printf("CPU Hz Data: %+v\n", nodeFrequencies)
-	fmt.Printf("Pod Info Data: %+v\n", podInfoMap)
+
+	fmt.Printf("Request Duration Data: %+v\n", requestDurationMap)
+	fmt.Printf("CPU Utilization Data: %+v\n", cpuUtilizationMap)
+	fmt.Printf("CPU Hz Data: %+v\n", nodeCPUFrequencyMap)
 }
