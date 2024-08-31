@@ -29,7 +29,7 @@ func CollectCpuUtilizationPerPod(promClient *prometheusClient.PrometheusClient, 
 	var utilizationData CpuUtilizationData
 
 	// 모든 컴포넌트에 대해 CPU 활용도를 수집
-	for _, component := range componentGraph.Components {
+	for component := range componentGraph.Components {
 		pods, exists := componentPodMap[component]
 		if !exists {
 			continue

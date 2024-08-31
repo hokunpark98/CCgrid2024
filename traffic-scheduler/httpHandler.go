@@ -51,6 +51,7 @@ func handleGetMonitoringInfo(w http.ResponseWriter, r *http.Request, promClient 
 	}
 
 	componentGraph, err := generateComponentGraph(promClient, namespace, logFile)
+
 	if err != nil {
 		logFile.WriteString(fmt.Sprintf("Failed to generate graph: %v\n", err))
 		log.Print(fmt.Sprintf("Failed to generate graph: %v", err))
@@ -96,7 +97,6 @@ func handleGetNodeCpuHz(w http.ResponseWriter, promClient *prometheusClient.Prom
 	_, err := getNodeCpuFrequencies(promClient, logFile)
 	if err != nil {
 		logFile.WriteString(fmt.Sprintf("Error collecting node CPU frequencies: %v\n", err))
-		log.Print(fmt.Sprintf("Error collecting node CPU frequencies: %v", err))
 		http.Error(w, "Error collecting node CPU frequencies", http.StatusInternalServerError)
 		return
 	}
@@ -168,11 +168,14 @@ func handleTrafficSchedule(w http.ResponseWriter, r *http.Request, promClient *p
 		return
 	}
 
+	//exeTrafficAllocator(componentGraph, )
+
 	// 응답 작성
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Traffic scheduling completed successfully\n"))
 
 	// 결과를 콘솔에 출력
+	fmt.Printf("Pod Info Data: %+v\n", componentGraph)
 	fmt.Printf("Request Duration Data: %+v\n", requestDurationData)
 	fmt.Printf("CPU Utilization Data: %+v\n", cpuUtilizationData)
 	fmt.Printf("CPU Hz Data: %+v\n", nodeFrequencies)

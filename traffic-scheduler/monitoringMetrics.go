@@ -95,8 +95,8 @@ func getNodeCpuFrequencies(promClient *prometheusClient.PrometheusClient, logFil
 }
 
 // getMapPodsToIP는 파드 이름을 키로, IP 주소와 관련 정보를 값으로 하는 맵을 반환
-func getMapPodsToIP(promClient *prometheusClient.PrometheusClient, namespace string, logFile *os.File) (map[string]graphGenerator.PodInfo, error) {
-	podInfoMap, err := graphGenerator.MapPodsToIP(promClient, namespace)
+func getMapPodsToIP(promClient *prometheusClient.PrometheusClient, namespace string, logFile *os.File) (map[string]metricCollector.PodInfo, error) {
+	podInfoMap, err := metricCollector.MapPodsToIP(promClient, namespace)
 	if err != nil {
 		logFile.WriteString(fmt.Sprintf("Error mapping pods to IPs: %v\n", err))
 		log.Print(fmt.Sprintf("Error mapping pods to IPs: %v", err))

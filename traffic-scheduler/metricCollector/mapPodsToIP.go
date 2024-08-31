@@ -1,4 +1,4 @@
-package graphGenerator
+package metricCollector
 
 import (
 	"log"

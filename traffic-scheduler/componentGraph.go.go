@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 	"traffic-scheduler/graphGenerator"
+	"traffic-scheduler/metricCollector"
 	"traffic-scheduler/prometheusClient"
 )
 
@@ -48,25 +49,26 @@ func generateComponentGraph(promClient *prometheusClient.PrometheusClient, names
 	log.Print("Component Graph:")
 	logFile.WriteString("  Components:\n")
 	log.Print("  Components:")
-	for _, component := range componentGraph.Components {
+
+	for component := range componentGraph.Components {
 		logFile.WriteString("    - " + component + "\n")
 		log.Print("    - " + component)
-	}
 
-	logFile.WriteString("  Links:\n")
-	log.Print("  Links:")
-	for _, link := range componentGraph.Links {
-		logFile.WriteString("    - [" + link.UC + " -> " + link.DC + "]\n")
-		log.Print("    - [" + link.UC + " -> " + link.DC + "]")
+		logFile.WriteString("  Links:\n")
+		log.Print("  Links:")
+		for _, link := range componentGraph.Components[component] {
+			logFile.WriteString("    - [" + component + " -> " + link + "]\n")
+			log.Print("    - [" + component + " -> " + link + "]")
+		}
+		logFile.WriteString(fmt.Sprintf("\n"))
+		log.Print("")
 	}
-	logFile.WriteString(fmt.Sprintf("\n"))
-	log.Print("")
 	return componentGraph, nil
 }
 
 // generateComponentPodMap는 컴포넌트와 endpoint에 해당하는 파드들을 매핑함. {component: [pod1, pod2, ..], ...}
 func generateComponentPodMap(promClient *prometheusClient.PrometheusClient, componentGraph *graphGenerator.ComponentGraph, logFile *os.File) map[string][]string {
-	componentPodMap := graphGenerator.MapComponentsToPods(promClient, componentGraph)
+	componentPodMap := metricCollector.MapComponentsToPods(promClient, componentGraph)
 
 	// Component to Pod Map 로그 포맷팅
 	logFile.WriteString("Component to Pod Map:\n")

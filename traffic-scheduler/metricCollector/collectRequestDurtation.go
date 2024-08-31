@@ -24,65 +24,67 @@ type RequestDurationData struct {
 	Components []ComponentRequestDurationData `json:"components"`
 }
 
-// CollectRequestDurationPerPod는 컴포넌트 그래프와 컴포넌트-파드 매핑을 기반으로 각 파드의 평균 요청 지속 시간을 수집합니다.
+// CollectRequestDurationPerPod는 컴포넌트 그래프와 컴포넌트-파드 매핑을 기반으로 각 파드의 평균 요청 지속 시간을 수집
 func CollectRequestDurationPerPod(promClient *prometheusClient.PrometheusClient, namespace string, componentGraph *graphGenerator.ComponentGraph, componentPodMap map[string][]string, duration string, requestCountData *RequestCountData) (*RequestDurationData, error) {
 	var requestData RequestDurationData
 
-	for _, link := range componentGraph.Links {
-		dc := link.DC
-		uc := link.UC
+	for component := range componentGraph.Components {
+		for _, link := range componentGraph.Components[component] {
+			uc := component
+			dc := link
 
-		dcPods, exists := componentPodMap[dc]
-		if !exists {
-			continue
-		}
-
-		var podDurationList []PodRequestDurationData
-
-		for _, pod := range dcPods {
-			// `istio_duration_total` 쿼리를 실행하여 총 지속 시간을 가져옴
-			query := fmt.Sprintf(`increase(istio_request_duration_milliseconds_sum{kubernetes_namespace="%s", kubernetes_pod_name="%s", source_app="%s"}[%s])`,
-				namespace, pod, uc, duration)
-
-			result, err := promClient.Query(query)
-			if err != nil {
-				return nil, err
+			dcPods, exists := componentPodMap[dc]
+			if !exists {
+				continue
 			}
 
-			var totalDuration float64
-			for _, sample := range result {
-				totalDuration += float64(sample.Value)
-			}
+			var podDurationList []PodRequestDurationData
 
-			// 해당 파드의 요청 수를 requestCountData에서 찾아서 평균 지속 시간 계산
-			var totalRequests int
-			for _, component := range requestCountData.Components {
-				if component.ComponentName == dc {
-					for _, podRequest := range component.PodRequests {
-						if podRequest.PodName == pod {
-							totalRequests = podRequest.RequestCount
-							break
+			for _, pod := range dcPods {
+				// `istio_duration_total` 쿼리를 실행하여 총 지속 시간을 가져옴
+				query := fmt.Sprintf(`increase(istio_request_duration_milliseconds_sum{kubernetes_namespace="%s", kubernetes_pod_name="%s", source_app="%s"}[%s])`,
+					namespace, pod, uc, duration)
+
+				result, err := promClient.Query(query)
+				if err != nil {
+					return nil, err
+				}
+
+				var totalDuration float64
+				for _, sample := range result {
+					totalDuration += float64(sample.Value)
+				}
+
+				// 해당 파드의 요청 수를 requestCountData에서 찾아서 평균 지속 시간 계산
+				var totalRequests int
+				for _, component := range requestCountData.Components {
+					if component.ComponentName == dc {
+						for _, podRequest := range component.PodRequests {
+							if podRequest.PodName == pod {
+								totalRequests = podRequest.RequestCount
+								break
+							}
 						}
+						break
 					}
-					break
+				}
+
+				if totalRequests > 0 {
+					averageDuration := (totalDuration / float64(totalRequests)) // ms 단위로 변환
+					roundedDuration := int(math.Round(averageDuration))
+
+					podDurationList = append(podDurationList, PodRequestDurationData{
+						PodName:         pod,
+						RequestDuration: roundedDuration,
+					})
 				}
 			}
 
-			if totalRequests > 0 {
-				averageDuration := (totalDuration / float64(totalRequests)) // ms 단위로 변환
-				roundedDuration := int(math.Round(averageDuration))
-
-				podDurationList = append(podDurationList, PodRequestDurationData{
-					PodName:         pod,
-					RequestDuration: roundedDuration,
-				})
-			}
+			requestData.Components = append(requestData.Components, ComponentRequestDurationData{
+				ComponentName: dc,
+				PodDurations:  podDurationList,
+			})
 		}
-
-		requestData.Components = append(requestData.Components, ComponentRequestDurationData{
-			ComponentName: dc,
-			PodDurations:  podDurationList,
-		})
 	}
 
 	return &requestData, nil

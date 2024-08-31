@@ -28,44 +28,46 @@ type RequestCountData struct {
 func CollectRequestCountPerPod(promClient *prometheusClient.PrometheusClient, namespace string, componentGraph *graphGenerator.ComponentGraph, componentPodMap map[string][]string, duration string) (*RequestCountData, error) {
 	var requestData RequestCountData
 
-	for _, link := range componentGraph.Links {
-		dc := link.DC
-		uc := link.UC
+	for component := range componentGraph.Components {
+		for _, link := range componentGraph.Components[component] {
+			uc := component
+			dc := link
 
-		dcPods, exists := componentPodMap[dc]
-		if !exists {
-			continue
-		}
-
-		var podRequestList []PodRequestCountData
-
-		for _, pod := range dcPods {
-			query := fmt.Sprintf(`increase(istio_requests_total{kubernetes_namespace="%s", kubernetes_pod_name="%s", source_app="%s"}[%s])`,
-				namespace, pod, uc, duration)
-
-			result, err := promClient.Query(query)
-			if err != nil {
-				return nil, err
+			dcPods, exists := componentPodMap[dc]
+			if !exists {
+				continue
 			}
 
-			var totalRequests float64
-			for _, sample := range result {
-				totalRequests += float64(sample.Value)
+			var podRequestList []PodRequestCountData
+
+			for _, pod := range dcPods {
+				query := fmt.Sprintf(`increase(istio_requests_total{kubernetes_namespace="%s", kubernetes_pod_name="%s", source_app="%s"}[%s])`,
+					namespace, pod, uc, duration)
+
+				result, err := promClient.Query(query)
+				if err != nil {
+					return nil, err
+				}
+
+				var totalRequests float64
+				for _, sample := range result {
+					totalRequests += float64(sample.Value)
+				}
+
+				// 소수점을 첫째 자리에서 반올림하고 정수로 변환
+				roundedRequests := int(math.Round(totalRequests))
+
+				podRequestList = append(podRequestList, PodRequestCountData{
+					PodName:      pod,
+					RequestCount: roundedRequests,
+				})
 			}
 
-			// 소수점을 첫째 자리에서 반올림하고 정수로 변환
-			roundedRequests := int(math.Round(totalRequests))
-
-			podRequestList = append(podRequestList, PodRequestCountData{
-				PodName:      pod,
-				RequestCount: roundedRequests,
+			requestData.Components = append(requestData.Components, ComponentRequestCountData{
+				ComponentName: dc,
+				PodRequests:   podRequestList,
 			})
 		}
-
-		requestData.Components = append(requestData.Components, ComponentRequestCountData{
-			ComponentName: dc,
-			PodRequests:   podRequestList,
-		})
 	}
 
 	return &requestData, nil
