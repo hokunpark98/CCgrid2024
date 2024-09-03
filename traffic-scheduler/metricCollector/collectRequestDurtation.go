@@ -60,16 +60,11 @@ func CollectRequestDurationPerPod(promClient *prometheusClient.PrometheusClient,
 				// 해당 파드의 요청 수를 requestCountMap에서 찾아서 평균 지속 시간 계산
 				var totalRequests int
 				if componentData, exists := requestCountMap.Components[dc]; exists {
-					for _, podRequest := range componentData.PodRequests {
-						if podRequest.PodName == pod.PodName {
-							totalRequests = podRequest.RequestCount
-							break
-						}
-					}
+					totalRequests = componentData.PodRequestMap[pod.PodName].RequestCount
 				}
 
 				if totalRequests > 0 {
-					averageDuration := (totalDuration / float64(totalRequests)) // ms 단위로 변환
+					averageDuration := (totalDuration / float64(totalRequests))
 					roundedDuration := int(math.Round(averageDuration))
 
 					podDurationList = append(podDurationList, PodRequestDurationData{

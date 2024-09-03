@@ -1,0 +1,47 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: direct-ip-routing-filter
+  namespace: paper2
+spec:
+  workloadSelector:
+    labels:
+      app: service-b  # 해당 서비스 라벨을 가진 파드에만 필터 적용
+  configPatches:
+  - applyTo: HTTP_FILTER
+    match:
+      context: SIDECAR_OUTBOUND  # 사이드카 프록시의 아웃바운드 트래픽에 적용
+      listener:
+        filterChain:
+          filter:
+            name: envoy.filters.network.http_connection_manager
+    patch:
+      operation: INSERT_BEFORE
+      value:
+        name: envoy.filters.http.lua
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
+          inline_code: |
+            function envoy_on_request(request_handle)
+                -- 직접 IP로 라우팅하도록 헤더 설정
+                local destination_ip = "172.24.182.35:11002"
+                request_handle:headers():replace(":authority", destination_ip)
+                request_handle:headers():replace("Host", destination_ip)
+                request_handle:headers():remove("x-envoy-decorator-operation")
+                request_handle:logInfo("Routing directly to IP: " .. destination_ip)
+            end
+
+
+"GET /e?value=5 HTTP/1.1" 200 - via_upstream - "-" 0 11 1 0 "-" 
+"Python/3.11 aiohttp/3.9.5" "0d1e78ab-bdd7-9791-9e85-83f146759450" 
+"service-e:11004" "172.20.235.173:11004" 
+outbound|11004||service-e.paper2.svc.cluster.local 
+172.20.235.172:53266 10.102.77.164:11004 172.20.235.172:53704 - default
+
+"GET /c?value=3 HTTP/1.1" 200 - via_upstream - "-" 0 11 7 7 "-" 
+"Python/3.11 aiohttp/3.9.5" "b14c5bea-28f3-95f2-986a-757801344b68" 
+"172.24.182.35:11002" "10.96.189.193:11002" PassthroughCluster 172.31.233.211:39532 10.96.189.193:11002 172.31.233.211:39750 - allow_any
+
+
+
+

@@ -7,21 +7,26 @@ import (
 
 // PodInfo는 파드의 이름, IP 주소, 호스트 이름 및 호스트 IP 주소를 나타냅니다.
 type PodInfo struct {
-	PodName  string `json:"pod_name"`
-	PodIP    string `json:"pod_ip"`
-	HostName string `json:"host_name"`
-	HostIP   string `json:"host_ip"`
+	PodName   string `json:"pod_name"`
+	PodIP     string `json:"pod_ip"`
+	HostName  string `json:"host_name"`
+	HostIP    string `json:"host_ip"`
+	Component string `json:"component"`
 }
 
-// ComponentPodMap은 컴포넌트 이름을 키로 하고, 해당 컴포넌트에 속한 파드들의 정보를 포함하는 맵입니다.
+// ComponentPodMap은 두 가지 맵을 포함합니다:
+// 1. 컴포넌트 이름을 키로 하고, 해당 컴포넌트에 속한 파드들의 정보를 포함하는 맵
+// 2. 파드 이름을 키로 하고, 해당 파드의 정보를 포함하는 맵
 type ComponentPodMap struct {
 	Components map[string][]PodInfo `json:"components"`
+	Pods       map[string]PodInfo   `json:"pods"`
 }
 
 // MapComponentToPodInfo 함수는 주어진 네임스페이스에서 각 컴포넌트에 대응하는 파드의 상세 정보를 반환합니다.
 func MapComponentToPodInfo(promClient *prometheusClient.PrometheusClient, namespace string) (*ComponentPodMap, error) {
 	componentsPodMap := &ComponentPodMap{
 		Components: make(map[string][]PodInfo),
+		Pods:       make(map[string]PodInfo),
 	}
 
 	// Prometheus 쿼리를 통해 네임스페이스 내의 모든 컴포넌트를 가져옴
@@ -44,13 +49,9 @@ func MapComponentToPodInfo(promClient *prometheusClient.PrometheusClient, namesp
 			return nil, err
 		}
 
-		var podNames []string
 		for _, sample := range labelResult {
 			podName := string(sample.Metric["pod"])
-			podNames = append(podNames, podName)
-		}
 
-		for _, podName := range podNames {
 			query := `kube_pod_info{namespace="` + namespace + `", pod="` + podName + `"}`
 
 			infoResult, err := promClient.Query(query)
@@ -61,13 +62,15 @@ func MapComponentToPodInfo(promClient *prometheusClient.PrometheusClient, namesp
 
 			for _, sample := range infoResult {
 				podInfo := PodInfo{
-					PodName:  string(sample.Metric["pod"]),
-					PodIP:    string(sample.Metric["pod_ip"]),
-					HostName: string(sample.Metric["node"]),
-					HostIP:   string(sample.Metric["host_ip"]),
+					PodName:   string(sample.Metric["pod"]),
+					PodIP:     string(sample.Metric["pod_ip"]),
+					HostName:  string(sample.Metric["node"]),
+					HostIP:    string(sample.Metric["host_ip"]),
+					Component: component,
 				}
 
 				componentsPodMap.Components[component] = append(componentsPodMap.Components[component], podInfo)
+				componentsPodMap.Pods[podName] = podInfo
 			}
 		}
 	}

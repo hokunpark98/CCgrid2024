@@ -1,0 +1,92 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: service-d-filter
+  namespace: paper2
+spec:
+  workloadSelector:
+    labels:
+      app: service-d
+  configPatches:
+  - applyTo: HTTP_FILTER
+    match:
+      context: SIDECAR_OUTBOUND
+      listener:
+        filterChain:
+          filter:
+            name: envoy.filters.network.http_connection_manager
+    patch:
+      operation: INSERT_BEFORE
+      value:
+        name: envoy.filters.http.lua
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
+          inline_code: |
+            local pod_ip = nil
+
+            function envoy_on_request(request_handle)
+              if not pod_ip then
+                local handle = io.popen("hostname -i")
+                pod_ip = handle:read("*a"):match("^%s*(.-)%s*$")
+                handle:close()
+              end
+
+              local rand = math.random(0, 100)
+              local destination = request_handle:headers():get(":authority")
+              local domain = destination:match("^([^:]+)")
+
+              if domain == "service-e" then
+                  if pod_ip == "172.31.233.217" then
+                      if rand <= 25 then
+                        destination = "172.20.235.180" .. destination:match("(:.*)$")
+                      elseif rand <= 50 then
+                        destination = "172.22.33.34" .. destination:match("(:.*)$")
+                      elseif rand <= 75 then
+                        destination = "172.24.182.42" .. destination:match("(:.*)$")
+                      elseif rand <= 100 then
+                        destination = "172.20.235.179" .. destination:match("(:.*)$")
+                      end
+                  elseif pod_ip == "172.20.235.178" then
+                      if rand <= 25 then
+                        destination = "172.20.235.180" .. destination:match("(:.*)$")
+                      elseif rand <= 50 then
+                        destination = "172.22.33.34" .. destination:match("(:.*)$")
+                      elseif rand <= 75 then
+                        destination = "172.24.182.42" .. destination:match("(:.*)$")
+                      elseif rand <= 100 then
+                        destination = "172.20.235.179" .. destination:match("(:.*)$")
+                      end
+                  elseif pod_ip == "172.24.182.40" then
+                      if rand <= 25 then
+                        destination = "172.20.235.180" .. destination:match("(:.*)$")
+                      elseif rand <= 50 then
+                        destination = "172.22.33.34" .. destination:match("(:.*)$")
+                      elseif rand <= 75 then
+                        destination = "172.24.182.42" .. destination:match("(:.*)$")
+                      elseif rand <= 100 then
+                        destination = "172.20.235.179" .. destination:match("(:.*)$")
+                      end
+                  elseif pod_ip == "172.24.182.43" then
+                      if rand <= 25 then
+                        destination = "172.20.235.180" .. destination:match("(:.*)$")
+                      elseif rand <= 50 then
+                        destination = "172.22.33.34" .. destination:match("(:.*)$")
+                      elseif rand <= 75 then
+                        destination = "172.24.182.42" .. destination:match("(:.*)$")
+                      elseif rand <= 100 then
+                        destination = "172.20.235.179" .. destination:match("(:.*)$")
+                      end
+                  elseif pod_ip == "172.22.33.33" then
+                      if rand <= 25 then
+                        destination = "172.20.235.180" .. destination:match("(:.*)$")
+                      elseif rand <= 50 then
+                        destination = "172.22.33.34" .. destination:match("(:.*)$")
+                      elseif rand <= 75 then
+                        destination = "172.24.182.42" .. destination:match("(:.*)$")
+                      elseif rand <= 100 then
+                        destination = "172.20.235.179" .. destination:match("(:.*)$")
+                      end
+                  end
+              end
+              request_handle:headers():replace(":authority", destination)
+            end

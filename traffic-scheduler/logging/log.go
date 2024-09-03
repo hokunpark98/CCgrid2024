@@ -6,6 +6,7 @@ import (
 	"os"
 	"traffic-scheduler/graphGenerator"
 	"traffic-scheduler/metricCollector"
+	"traffic-scheduler/trafficAllocator"
 )
 
 func LogComponentGraph(componentGraph *graphGenerator.ComponentGraph, logFile *os.File) {
@@ -53,7 +54,7 @@ func LogRequestCountPerPod(requestCountMap *metricCollector.RequestCountMap, log
 	for _, component := range requestCountMap.Components {
 		logFile.WriteString(fmt.Sprintf("  Component: %s\n", component.ComponentName))
 		log.Print(fmt.Sprintf("  Component: %s", component.ComponentName))
-		for _, podRequest := range component.PodRequests {
+		for _, podRequest := range component.PodRequestMap {
 			logFile.WriteString(fmt.Sprintf("    Pod: %s, Request Count: %d\n", podRequest.PodName, podRequest.RequestCount))
 			log.Print(fmt.Sprintf("    Pod: %s, Request Count: %d", podRequest.PodName, podRequest.RequestCount))
 		}
@@ -92,13 +93,29 @@ func LogCpuUtilizationPerPod(cpuUtilizationMap *metricCollector.CpuUtilizationMa
 	log.Print("")
 }
 
-func LogNodeCpuFrequencies(nodeCPUFrequencyMap *metricCollector.NodeCPUFrequencyMap, logFile *os.File) {
-	logFile.WriteString("Node CPU Frequencies:\n")
-	log.Print("Node CPU Frequencies:")
+func LogNodeCpuHz(nodeCPUFrequencyMap *metricCollector.NodeCpuHzMap, logFile *os.File) {
+	logFile.WriteString("Node CPU Hz:\n")
+	log.Print("Node CPU Hz:")
 	for node, nodeFreq := range nodeCPUFrequencyMap.Nodes {
 		logFile.WriteString(fmt.Sprintf("  NodeName: %s, Hertz: %d\n", node, nodeFreq.Hertz))
 		log.Print(fmt.Sprintf("  NodeName: %s, Hertz: %d", node, nodeFreq.Hertz))
 	}
 	logFile.WriteString(fmt.Sprintf("\n"))
 	log.Print("")
+}
+
+func LogTrafficAllocationResult(trafficAllocationResult *trafficAllocator.ProportionMap, logFile *os.File) {
+	logFile.WriteString("Traffic Allocation Result:\n")
+	for sourceComponent, destinationMap := range trafficAllocationResult.Components {
+		logFile.WriteString(fmt.Sprintf("  Source Component: %s\n", sourceComponent))
+		for destinationComponent, sourcePodDataList := range destinationMap {
+			logFile.WriteString(fmt.Sprintf("    Destination Component: %s\n", destinationComponent))
+			for _, sourcePodData := range sourcePodDataList {
+				logFile.WriteString(fmt.Sprintf("      Source Pod: %s\n", sourcePodData.SourcePodName))
+				for _, proportionData := range sourcePodData.ProportionDatas {
+					logFile.WriteString(fmt.Sprintf("        -> Destination Pod: %s, Proportion: %d\n", proportionData.DestinationPodName, proportionData.Proportion))
+				}
+			}
+		}
+	}
 }

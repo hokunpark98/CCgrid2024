@@ -3,8 +3,9 @@ wrk2 -t4 -c20 -d120s -R50 --latency "http://10.102.123.170:11000/a?value=1" -s /
 python3 /home/dnc/master/paper2024/code/main.py bookinfo http://10.108.230.9:8080 proposed
 python3 /home/dnc/master/paper2024/code/main.py paper2 http://10.108.230.9:8080 proposed
 
-wrk2 -t1 -c1 -d 60s -R3 http://10.96.213.124:9080/productpage
-
-
+wrk2 -t2 -c4 -d120s -R20 --latency http://10.111.27.206:9080/productpage
 wrk2 -t2 -c4 -d120s -R20 --latency "http://10.96.213.124:11000/a?value=1"
 wrk2 -t2 -c10 -d10s -R10 --latency "http://10.96.33.187:11003/d?value=1" 
+
+curl "http://localhost:13000/traffic-schedule?namespace=paper2&duration=5m"
+curl "http://localhost:13000/traffic-schedule?namespace=bookinfo&duration=5m"
