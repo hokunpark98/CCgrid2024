@@ -2,7 +2,7 @@ apiVersion: networking.istio.io/v1alpha3
 kind: EnvoyFilter
 metadata:
   name: service-d-filter
-  namespace: paper2
+  namespace: custom
 spec:
   workloadSelector:
     labels:
@@ -36,55 +36,55 @@ spec:
               local domain = destination:match("^([^:]+)")
 
               if domain == "service-e" then
-                  if pod_ip == "172.31.233.217" then
+                  if pod_ip == "172.20.235.139" then
                       if rand <= 25 then
-                        destination = "172.20.235.180" .. destination:match("(:.*)$")
+                        destination = "172.24.182.9" .. destination:match("(:.*)$")
                       elseif rand <= 50 then
-                        destination = "172.22.33.34" .. destination:match("(:.*)$")
+                        destination = "172.20.235.140" .. destination:match("(:.*)$")
                       elseif rand <= 75 then
-                        destination = "172.24.182.42" .. destination:match("(:.*)$")
+                        destination = "172.31.233.206" .. destination:match("(:.*)$")
                       elseif rand <= 100 then
-                        destination = "172.20.235.179" .. destination:match("(:.*)$")
+                        destination = "172.22.33.5" .. destination:match("(:.*)$")
                       end
-                  elseif pod_ip == "172.20.235.178" then
+                  elseif pod_ip == "172.22.33.7" then
                       if rand <= 25 then
-                        destination = "172.20.235.180" .. destination:match("(:.*)$")
+                        destination = "172.24.182.9" .. destination:match("(:.*)$")
                       elseif rand <= 50 then
-                        destination = "172.22.33.34" .. destination:match("(:.*)$")
+                        destination = "172.20.235.140" .. destination:match("(:.*)$")
                       elseif rand <= 75 then
-                        destination = "172.24.182.42" .. destination:match("(:.*)$")
+                        destination = "172.31.233.206" .. destination:match("(:.*)$")
                       elseif rand <= 100 then
-                        destination = "172.20.235.179" .. destination:match("(:.*)$")
+                        destination = "172.22.33.5" .. destination:match("(:.*)$")
                       end
-                  elseif pod_ip == "172.24.182.40" then
+                  elseif pod_ip == "172.31.233.205" then
                       if rand <= 25 then
-                        destination = "172.20.235.180" .. destination:match("(:.*)$")
+                        destination = "172.24.182.9" .. destination:match("(:.*)$")
                       elseif rand <= 50 then
-                        destination = "172.22.33.34" .. destination:match("(:.*)$")
+                        destination = "172.20.235.140" .. destination:match("(:.*)$")
                       elseif rand <= 75 then
-                        destination = "172.24.182.42" .. destination:match("(:.*)$")
+                        destination = "172.31.233.206" .. destination:match("(:.*)$")
                       elseif rand <= 100 then
-                        destination = "172.20.235.179" .. destination:match("(:.*)$")
+                        destination = "172.22.33.5" .. destination:match("(:.*)$")
                       end
-                  elseif pod_ip == "172.24.182.43" then
+                  elseif pod_ip == "172.24.182.8" then
                       if rand <= 25 then
-                        destination = "172.20.235.180" .. destination:match("(:.*)$")
+                        destination = "172.24.182.9" .. destination:match("(:.*)$")
                       elseif rand <= 50 then
-                        destination = "172.22.33.34" .. destination:match("(:.*)$")
+                        destination = "172.20.235.140" .. destination:match("(:.*)$")
                       elseif rand <= 75 then
-                        destination = "172.24.182.42" .. destination:match("(:.*)$")
+                        destination = "172.31.233.206" .. destination:match("(:.*)$")
                       elseif rand <= 100 then
-                        destination = "172.20.235.179" .. destination:match("(:.*)$")
+                        destination = "172.22.33.5" .. destination:match("(:.*)$")
                       end
-                  elseif pod_ip == "172.22.33.33" then
+                  elseif pod_ip == "172.31.233.207" then
                       if rand <= 25 then
-                        destination = "172.20.235.180" .. destination:match("(:.*)$")
+                        destination = "172.24.182.9" .. destination:match("(:.*)$")
                       elseif rand <= 50 then
-                        destination = "172.22.33.34" .. destination:match("(:.*)$")
+                        destination = "172.20.235.140" .. destination:match("(:.*)$")
                       elseif rand <= 75 then
-                        destination = "172.24.182.42" .. destination:match("(:.*)$")
+                        destination = "172.31.233.206" .. destination:match("(:.*)$")
                       elseif rand <= 100 then
-                        destination = "172.20.235.179" .. destination:match("(:.*)$")
+                        destination = "172.22.33.5" .. destination:match("(:.*)$")
                       end
                   end
               end

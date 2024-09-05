@@ -2,7 +2,7 @@ apiVersion: networking.istio.io/v1alpha3
 kind: EnvoyFilter
 metadata:
   name: service-c-filter
-  namespace: paper2
+  namespace: custom
 spec:
   workloadSelector:
     labels:
@@ -36,29 +36,29 @@ spec:
               local domain = destination:match("^([^:]+)")
 
               if domain == "service-d" then
-                  if pod_ip == "172.20.235.175" then
+                  if pod_ip == "172.31.233.203" then
                       if rand <= 20 then
-                        destination = "172.31.233.217" .. destination:match("(:.*)$")
+                        destination = "172.20.235.139" .. destination:match("(:.*)$")
                       elseif rand <= 40 then
-                        destination = "172.20.235.178" .. destination:match("(:.*)$")
+                        destination = "172.22.33.7" .. destination:match("(:.*)$")
                       elseif rand <= 60 then
-                        destination = "172.24.182.40" .. destination:match("(:.*)$")
+                        destination = "172.31.233.205" .. destination:match("(:.*)$")
                       elseif rand <= 80 then
-                        destination = "172.24.182.43" .. destination:match("(:.*)$")
+                        destination = "172.24.182.8" .. destination:match("(:.*)$")
                       elseif rand <= 100 then
-                        destination = "172.22.33.33" .. destination:match("(:.*)$")
+                        destination = "172.31.233.207" .. destination:match("(:.*)$")
                       end
-                  elseif pod_ip == "172.31.233.214" then
+                  elseif pod_ip == "172.20.235.138" then
                       if rand <= 20 then
-                        destination = "172.31.233.217" .. destination:match("(:.*)$")
+                        destination = "172.20.235.139" .. destination:match("(:.*)$")
                       elseif rand <= 40 then
-                        destination = "172.20.235.178" .. destination:match("(:.*)$")
+                        destination = "172.22.33.7" .. destination:match("(:.*)$")
                       elseif rand <= 60 then
-                        destination = "172.24.182.40" .. destination:match("(:.*)$")
+                        destination = "172.31.233.205" .. destination:match("(:.*)$")
                       elseif rand <= 80 then
-                        destination = "172.24.182.43" .. destination:match("(:.*)$")
+                        destination = "172.24.182.8" .. destination:match("(:.*)$")
                       elseif rand <= 100 then
-                        destination = "172.22.33.33" .. destination:match("(:.*)$")
+                        destination = "172.31.233.207" .. destination:match("(:.*)$")
                       end
                   end
               end

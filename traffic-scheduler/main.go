@@ -8,7 +8,7 @@ import (
 
 func main() {
 	// Prometheus 클라이언트 생성
-	promClient, err := prometheusClient.NewPrometheusClient("http://10.106.247.30:8080")
+	promClient, err := prometheusClient.NewPrometheusClient("http://10.102.138.205:8080")
 	if err != nil {
 		log.Fatalf("Failed to create Prometheus client: %v", err)
 	}

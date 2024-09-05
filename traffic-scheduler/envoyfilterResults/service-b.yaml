@@ -2,7 +2,7 @@ apiVersion: networking.istio.io/v1alpha3
 kind: EnvoyFilter
 metadata:
   name: service-b-filter
-  namespace: paper2
+  namespace: custom
 spec:
   workloadSelector:
     labels:
@@ -25,42 +25,54 @@ spec:
             local pod_ip = nil
 
             function envoy_on_request(request_handle)
+              -- Pod IP를 한 번만 가져오기
               if not pod_ip then
                 local handle = io.popen("hostname -i")
                 pod_ip = handle:read("*a"):match("^%s*(.-)%s*$")
                 handle:close()
               end
 
-              local rand = math.random(0, 100)
+              -- 요청에서 목적지 호스트(:authority) 헤더 추출
               local destination = request_handle:headers():get(":authority")
-              local domain = destination:match("^([^:]+)")
+              local domain = destination:match("^([^:]+)") -- 도메인 부분 추출 (포트 제외)
 
+              -- 목적지가 service-c일 경우만 수정
               if domain == "service-c" then
-                  if pod_ip == "172.31.233.216" then
-                      if rand <= 50 then
-                        destination = "172.20.235.175" .. destination:match("(:.*)$")
-                      elseif rand <= 100 then
-                        destination = "172.31.233.214" .. destination:match("(:.*)$")
-                      end
-                  elseif pod_ip == "172.22.33.32" then
-                      if rand <= 50 then
-                        destination = "172.20.235.175" .. destination:match("(:.*)$")
-                      elseif rand <= 100 then
-                        destination = "172.31.233.214" .. destination:match("(:.*)$")
-                      end
-                  elseif pod_ip == "172.24.182.39" then
-                      if rand <= 50 then
-                        destination = "172.20.235.175" .. destination:match("(:.*)$")
-                      elseif rand <= 100 then
-                        destination = "172.31.233.214" .. destination:match("(:.*)$")
-                      end
-                  elseif pod_ip == "172.20.235.177" then
-                      if rand <= 50 then
-                        destination = "172.20.235.175" .. destination:match("(:.*)$")
-                      elseif rand <= 100 then
-                        destination = "172.31.233.214" .. destination:match("(:.*)$")
-                      end
+                local new_ip = nil
+                local rand = math.random(0, 100)
+
+                -- Pod IP별로 목적지 IP 변경
+                if pod_ip == "172.20.235.143" then
+                  if rand <= 0 then
+                    new_ip = "172.20.235.145"
+                  else
+                    new_ip = "service-c-ip2-routing"
                   end
+                elseif pod_ip == "172.24.182.11" then
+                  if rand <= 0 then
+                    new_ip = "172.20.235.145"
+                  else
+                    new_ip = "service-c-ip2-routing"
+                  end
+                elseif pod_ip == "172.31.233.210" then
+                  if rand <= 0 then
+                    new_ip = "172.20.235.145"
+                  else
+                    new_ip = "service-c-ip2-routing"
+                  end
+                elseif pod_ip == "172.22.33.8" then
+                  if rand <= 0 then
+                    new_ip = "172.20.235.145"
+                  else
+                    new_ip = "service-c-ip2-routing"
+                  end
+                end
+
+                -- :authority와 Host 헤더를 새 IP로 수정
+                if new_ip then
+                  local new_destination = new_ip .. destination:match("(:.*)$") -- 포트 유지
+                  request_handle:headers():replace(":authority", new_destination)
+                  request_handle:headers():replace("Host", new_destination)
+                end
               end
-              request_handle:headers():replace(":authority", destination)
             end
