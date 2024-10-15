@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"traffic-scheduler/graphGenerator"
 	"traffic-scheduler/metricCollector"
 	"traffic-scheduler/trafficAllocator"
@@ -40,7 +41,7 @@ func LogComponentPodMap(componentPodMap *metricCollector.ComponentPodMap, logFil
 		for _, pod := range pods {
 			logFile.WriteString("    [" + pod.PodName + ", " + pod.PodIP + ", " +
 				pod.HostName + ", " + pod.HostIP + "]\n")
-			log.Print("    [" + pod.PodName + ", " + pod.PodIP + ", " +
+			log.Print("    [" + pod.PodName + ", " + pod.PodIP + ", " + "[" + strings.Join(pod.Ports, ", ") + "]" + ", " +
 				pod.HostName + ", " + pod.HostIP + "]\n")
 		}
 	}

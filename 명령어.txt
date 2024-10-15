@@ -4,8 +4,14 @@ python3 /home/dnc/master/paper2024/code/main.py bookinfo http://10.108.230.9:808
 python3 /home/dnc/master/paper2024/code/main.py paper2 http://10.108.230.9:8080 proposed
 
 wrk2 -t2 -c4 -d120s -R20 --latency http://10.111.27.206:9080/productpage
-wrk2 -t2 -c4 -d120s -R20 --latency "http://10.96.213.124:11000/a?value=1"
+
+wrk2 -t2 -c4 -d30s -R20 --latency "http://10.106.35.212:11000/a?value=1"
+
 wrk2 -t2 -c10 -d10s -R10 --latency "http://10.96.33.187:11003/d?value=1" 
 
-curl "http://localhost:13000/traffic-schedule?namespace=paper2&duration=5m"
+curl "http://localhost:13000/traffic-schedule?namespace=custom&duration=5m"
+
+
 curl "http://localhost:13000/traffic-schedule?namespace=bookinfo&duration=5m"
+
+curl "http://172.20.235.138:11002/c?value=3"

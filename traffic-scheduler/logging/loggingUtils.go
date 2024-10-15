@@ -16,7 +16,7 @@ func GenerateLogFile() *os.File {
 	now := time.Now().In(loc)
 
 	// 파일 이름을 현재 시간으로 설정
-	filename := filepath.Join("logDatas", now.Format("2006-01-02_15-04-05")+".log")
+	filename := filepath.Join("etc/logDatas", now.Format("2006-01-02_15-04-05")+".log")
 
 	// 파일 생성
 	logFile, err := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)

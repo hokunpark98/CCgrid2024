@@ -25,8 +25,9 @@ func handleGetGraph(w http.ResponseWriter, r *http.Request, promClient *promethe
 
 	componentGraph, err := graphGenerator.GenerateGraph(promClient, namespace)
 	if err != nil {
-		logFile.WriteString(fmt.Sprintf("Failed to generate graph: %v\n", err))
-		log.Print(fmt.Sprintf("Failed to generate graph: %v", err))
+		logMessage := fmt.Sprintf("Failed to generate graph: %v\n", err)
+		logging.LogMessage(logFile, logMessage)
+		logging.Alert(w, logMessage)
 		return
 	}
 	logging.LogComponentGraph(componentGraph, logFile)
@@ -188,7 +189,8 @@ func handleTrafficSchedule(w http.ResponseWriter, r *http.Request, promClient *p
 	}
 	logging.LogNodeCpuHz(nodeCpuHzMap, logFile)
 
-	trafficAllocationResult := trafficAllocator.TrafficAllocation(componentGraph, componentPodMap, namespace)
+	trafficAllocator.MakeEntryPoint(*componentPodMap, namespace)
+	trafficAllocationResult := trafficAllocator.TrafficAllocation(namespace, componentGraph, componentPodMap)
 	logging.LogTrafficAllocationResult(trafficAllocationResult, logFile)
 
 	// 결과를 콘솔에 출력

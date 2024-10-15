@@ -1,0 +1,91 @@
+--- 10-second CPU usage at 03:56:13 ---
+Pod: downstream-worker1-797c844ccb-cb5lv, CPU Usage: 11 millicores
+Pod: downstream-worker2-f8f7879b6-9nspj, CPU Usage: 12 millicores
+Pod: upstream-worker1-78456588b6-kjph6, CPU Usage: 0 millicores
+Pod: upstream-worker2-79bfc85d8-sp7ht, CPU Usage: 0 millicores
+Pod: upstream-worker3-57c7478578-756zc, CPU Usage: 0 millicores
+
+--- 10-second CPU usage at 03:56:23 ---
+Pod: downstream-worker1-797c844ccb-cb5lv, CPU Usage: 10 millicores
+Pod: downstream-worker2-f8f7879b6-9nspj, CPU Usage: 0 millicores
+Pod: upstream-worker1-78456588b6-kjph6, CPU Usage: 0 millicores
+Pod: upstream-worker2-79bfc85d8-sp7ht, CPU Usage: 0 millicores
+Pod: upstream-worker3-57c7478578-756zc, CPU Usage: 0 millicores
+
+--- 10-second CPU usage at 03:56:33 ---
+Pod: downstream-worker1-797c844ccb-cb5lv, CPU Usage: 0 millicores
+Pod: downstream-worker2-f8f7879b6-9nspj, CPU Usage: 0 millicores
+Pod: upstream-worker1-78456588b6-kjph6, CPU Usage: 0 millicores
+Pod: upstream-worker2-79bfc85d8-sp7ht, CPU Usage: 0 millicores
+Pod: upstream-worker3-57c7478578-756zc, CPU Usage: 0 millicores
+
+--- 10-second CPU usage at 03:56:43 ---
+Pod: downstream-worker1-797c844ccb-cb5lv, CPU Usage: 0 millicores
+Pod: downstream-worker2-f8f7879b6-9nspj, CPU Usage: 0 millicores
+Pod: upstream-worker1-78456588b6-kjph6, CPU Usage: 0 millicores
+Pod: upstream-worker2-79bfc85d8-sp7ht, CPU Usage: 0 millicores
+Pod: upstream-worker3-57c7478578-756zc, CPU Usage: 0 millicores
+
+--- 10-second CPU usage at 03:56:53 ---
+Pod: downstream-worker1-797c844ccb-cb5lv, CPU Usage: 0 millicores
+Pod: downstream-worker2-f8f7879b6-9nspj, CPU Usage: 0 millicores
+Pod: upstream-worker1-78456588b6-kjph6, CPU Usage: 0 millicores
+Pod: upstream-worker2-79bfc85d8-sp7ht, CPU Usage: 0 millicores
+Pod: upstream-worker3-57c7478578-756zc, CPU Usage: 0 millicores
+
+--- 10-second CPU usage at 03:57:03 ---
+Pod: downstream-worker1-797c844ccb-cb5lv, CPU Usage: 21 millicores
+Pod: downstream-worker2-f8f7879b6-9nspj, CPU Usage: 18 millicores
+Pod: upstream-worker1-78456588b6-kjph6, CPU Usage: 22 millicores
+Pod: upstream-worker2-79bfc85d8-sp7ht, CPU Usage: 29 millicores
+Pod: upstream-worker3-57c7478578-756zc, CPU Usage: 28 millicores
+
+--- 10-second CPU usage at 03:57:13 ---
+Pod: downstream-worker1-797c844ccb-cb5lv, CPU Usage: 21 millicores
+Pod: downstream-worker2-f8f7879b6-9nspj, CPU Usage: 18 millicores
+Pod: upstream-worker1-78456588b6-kjph6, CPU Usage: 22 millicores
+Pod: upstream-worker2-79bfc85d8-sp7ht, CPU Usage: 29 millicores
+Pod: upstream-worker3-57c7478578-756zc, CPU Usage: 28 millicores
+
+--- 10-second CPU usage at 03:57:23 ---
+Pod: downstream-worker1-797c844ccb-cb5lv, CPU Usage: 25 millicores
+Pod: downstream-worker2-f8f7879b6-9nspj, CPU Usage: 23 millicores
+Pod: upstream-worker1-78456588b6-kjph6, CPU Usage: 22 millicores
+Pod: upstream-worker2-79bfc85d8-sp7ht, CPU Usage: 32 millicores
+Pod: upstream-worker3-57c7478578-756zc, CPU Usage: 28 millicores
+
+--- 10-second CPU usage at 03:57:33 ---
+Pod: downstream-worker1-797c844ccb-cb5lv, CPU Usage: 26 millicores
+Pod: downstream-worker2-f8f7879b6-9nspj, CPU Usage: 27 millicores
+Pod: upstream-worker1-78456588b6-kjph6, CPU Usage: 35 millicores
+Pod: upstream-worker2-79bfc85d8-sp7ht, CPU Usage: 34 millicores
+Pod: upstream-worker3-57c7478578-756zc, CPU Usage: 30 millicores
+
+--- 10-second CPU usage at 03:57:43 ---
+Pod: downstream-worker1-797c844ccb-cb5lv, CPU Usage: 26 millicores
+Pod: downstream-worker2-f8f7879b6-9nspj, CPU Usage: 27 millicores
+Pod: upstream-worker1-78456588b6-kjph6, CPU Usage: 35 millicores
+Pod: upstream-worker2-79bfc85d8-sp7ht, CPU Usage: 34 millicores
+Pod: upstream-worker3-57c7478578-756zc, CPU Usage: 30 millicores
+
+--- 10-second CPU usage at 03:57:53 ---
+Pod: downstream-worker1-797c844ccb-cb5lv, CPU Usage: 22 millicores
+Pod: downstream-worker2-f8f7879b6-9nspj, CPU Usage: 28 millicores
+Pod: upstream-worker1-78456588b6-kjph6, CPU Usage: 35 millicores
+Pod: upstream-worker2-79bfc85d8-sp7ht, CPU Usage: 31 millicores
+Pod: upstream-worker3-57c7478578-756zc, CPU Usage: 30 millicores
+
+--- 10-second CPU usage at 03:58:03 ---
+Pod: downstream-worker1-797c844ccb-cb5lv, CPU Usage: 0 millicores
+Pod: downstream-worker2-f8f7879b6-9nspj, CPU Usage: 28 millicores
+Pod: upstream-worker1-78456588b6-kjph6, CPU Usage: 2 millicores
+Pod: upstream-worker2-79bfc85d8-sp7ht, CPU Usage: 0 millicores
+Pod: upstream-worker3-57c7478578-756zc, CPU Usage: 15 millicores
+
+--- Average CPU usage over 1 minute ---
+Pod: downstream-worker1-797c844ccb-cb5lv, Avg CPU Usage: 13 millicores
+Pod: downstream-worker2-f8f7879b6-9nspj, Avg CPU Usage: 15 millicores
+Pod: upstream-worker1-78456588b6-kjph6, Avg CPU Usage: 14 millicores
+Pod: upstream-worker2-79bfc85d8-sp7ht, Avg CPU Usage: 15 millicores
+Pod: upstream-worker3-57c7478578-756zc, Avg CPU Usage: 15 millicores
+
